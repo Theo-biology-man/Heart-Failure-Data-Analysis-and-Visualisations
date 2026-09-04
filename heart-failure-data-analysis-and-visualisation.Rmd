@@ -1,0 +1,327 @@
+---
+title: "Heart Failure Data Analysis and Visualisation"
+author: "Theo Richardson"
+date: "2026-09-01"
+output:
+  github_document:
+---
+
+**Heart Failure Data Analysis and Visualisations**
+
+This project presents and analyses data from 299 heart failure patients to understand factors contributing to mortality in the style of a scientific journal article 
+
+**The effect of the number of risk factors on death by heart failure**
+
+The effect of compounding risk factors on incidences of death was assessed by totaling the number of risk factors in each patient and calculating what percentage of that group died as the groups varied in sizes. 
+
+Figure 1 demonstrates that those in the group with a combination of three risk factors, out of smoking, hypertension, anemia and diabetes, saw the highest percentage of deaths (48.78%) within their group with an increase over both those with two (31.07%) and one (26.27%) risk factors. 
+
+Despite this, the second highest percentage (37.14%) was shown by the group with zero risk factors, while no patients with four factors were deceased. This indicates using combination of risk factors as a model for predicting mortality in heart failure patients is not informative.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap = "Figure 1: The  number of categorical risk factors in each patient was totalled and each patient was separated into groups based on their risk factor numbers. This included smoking, anaemia, diabetes and hypertension.  The percentage of this group that was deceased during their follow up period was calculated. Those with 3 risk factors (*n = 41*) showed the highest percentage however those with 1 (*n = 118*) and 2 (*n = 103*) risk factors showed a lower percentage than those with 0 (*n = 35*) risk factors. No patients with more 4 risk factors were deceased in this dataset"}
+
+#packages 
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(nortest)
+library(gridExtra)
+
+Heart_Failure <- read_xlsx("Data/Heart failure.xlsx", sheet = 2)
+
+
+#mutate table
+
+Heart_Failure <- Heart_Failure %>%
+  mutate(num_factors = rowSums(select(.,
+                                      diabetes, 
+                                      high_blood_pressure, 
+                                      anaemia, 
+                                      smoking)))
+
+#patient count for each factor
+
+total_counts <- Heart_Failure %>% 
+  group_by(num_factors) %>%
+  summarise(total = n())
+
+#death count for each factor
+death_counts <- Heart_Failure %>%
+  filter(DEATH_EVENT == 1) %>%
+  group_by(num_factors) %>%
+  summarise(deaths = n())
+
+#joining tables together 
+merged_counts <- left_join(total_counts, death_counts, by = "num_factors")
+
+merged_counts <- merged_counts %>%
+  mutate(
+    deaths = ifelse(is.na(deaths), 0, deaths),
+    percentage_of_deaths = (deaths/total) * 100
+    )
+
+
+
+#figure for proportion of people in group who are deceased
+
+ggplot(merged_counts, aes(x = factor(num_factors), 
+                          y = percentage_of_deaths, 
+                          fill = factor(num_factors))) +
+  geom_bar(stat = "identity", colour = "black", width = 0.5, 
+           na.rm = FALSE, show.legend = FALSE) +
+  scale_fill_manual(values = c("0" = "#228B22",
+                               "1" = "#FFD700",
+                               "2" = "lightblue3",
+                               "3" = "purple",
+                               "4" = "orange")) +
+  
+  labs(x = "Number of risk factors",
+       y = "Percentage of patients who died (%)") +
+  theme(axis.line = element_line(size = 0.5))
+
+
+
+```
+
+**The effects of age on mortality in heart failure patients**
+
+Figure 2 demonstrates that patients who had died during the follow-up period tended to be older, with the median age of the deceased group being 65 years compared with 60 years in the alive group. Neither group followed a normal distribution (Anderson-Darling test: p < 0.05 for both groups) therefore a non-parametric Mann Whitney U test was used to compare age between the two groups.
+
+The Mann Whitney U test identified a significant difference in age between alive and deceased patients (W = 7127, p < 0.001). This suggests that age will be one of the main factors contributing to mortality in this data set.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap = "Figure 2: The distibution of age among patients who were either alive (*n = 203*) or deceased (*n = 96*) filter their follow up period. The age of patients was significantly higher (Mann Whitney U test: U = 7127, *p* < 0.001) in the group of patients who were deceased after their follow up period."}
+
+
+#filtering the data for stats test and labeling for graph
+
+alive_patients <- Heart_Failure %>%
+  filter( DEATH_EVENT == "0")
+
+dead_patients <- Heart_Failure %>%
+  filter( DEATH_EVENT == "1")
+
+Heart_Failure$DEATH_EVENT <- factor(Heart_Failure$DEATH_EVENT, 
+                                    levels = c(0, 1),
+                                labels = c("Alive", "Dead"))
+
+#boxplot presenting distribution of ages across alive and dead patients
+
+ggplot(data = Heart_Failure, aes(x = DEATH_EVENT, 
+                                 y = age, 
+                                 fill = DEATH_EVENT)) +
+  geom_boxplot(width = 0.3, 
+               show.legend = FALSE, 
+               outlier.shape = NA ) +
+  geom_jitter(width = 0.1, alpha = 0.3, show.legend = FALSE) +
+  scale_fill_manual(values = c("Alive" = "#228B22", 
+                               "Dead" = "#FFD700")) +
+    labs(x = "",
+       y = "Age of patient") +
+  theme(axis.line = element_line(size = 0.5))
+
+##comparison of medians
+
+median(alive_patients$age)
+median(dead_patients$age)
+
+#test for normality
+
+ad.test(alive_patients$age)
+ad.test(dead_patients$age)
+
+#wilcoxon rank sum test
+wilcox.test(age ~ DEATH_EVENT, data = Heart_Failure)
+
+
+```
+
+**Effects blood related risk factors on mortality in heart failure patients**
+
+
+Four blood related factors which are used to predict mortality by heart failure were analysed to understand how they differed between alive and deceased patients. 
+
+Visually Figure 3 (a) and (c) demonstrate little difference in the distribution of their respective factors however in (b) and (d) we can observe that patients who were deceased after their follow up period tended to have a higher serum creatinine level and a lower serum sodium level. Figure 3 (b), (c) and (d) do display some extreme outliers demonstrating there is still a very wide range of values for these blood related factors in heart failure patients. 
+
+Most of the groups did not follow a normal distribution (Anderson-Darling test: *p* < 0.05 for all groups except for the platelet number in the deceased groups, *p* = 0.05703) and therefore a non-parametric Mann-Whitney U test was performed.
+
+A significant difference was found between the medians of the log~10~ of serum creatinine levels (W = 5298.5 *p* < 0.001) and the log~10~ of serum sodium levels (W = 12262  *p* < 0.001) for the deceased and alive groups. No significant difference was found, however, between the medians of the log~10~ of the CPK levels (W = 9460, *p* = 0.684) and the log~10~ of the platelet levels (W = 10300, *p* = 0.4256) for the deceased and alive groups. 
+
+From this we can infer that higher levels of serum creatinine and lower levels of serum sodium are associated with mortality in this dataset whereas CPK and platelets levels have little effect.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap = "Figure 3: (a): The distribution of  the Log10 of CPK levels in alive and deceased heart failure patients. There was no significant difference between the medians of both groups (Mann Whitney U test: U = 9380, *p* = 0.684). (b): The distribution of the Log10 of serum creatinine levels in alive and deceased heart failure patients.The median serum creatinine levels in deceased patients was signifcantly higher than the median in alive patients (Mann-Whitney U test: U = 5280.5 *p* > 0.001). (c): The distribution of the Log10 of platelet levels in alive and deceased heart failure patients. There was no significant difference between the medians of both groups (Mann Whitney U test: U = 10156, *p* = 0.4256.  (d): The distribution of the Log10 of serum sodium levels in alive and deceased heart failure patients. The median serum sodium levels in deceased patients was signifcantly lower than the median in alive patients (Mann Whitney U test: U =  *p* > 0.001)"  }
+
+
+
+
+
+#series of four box plots for blood related factors
+
+#creatine phosphokinase boxplot
+
+p1 <- ggplot(data = Heart_Failure, aes(
+  x = DEATH_EVENT, 
+  y = log10(creatinine_phosphokinase), 
+  fill = DEATH_EVENT)) +
+  geom_boxplot(width = 0.3, show.legend = FALSE) +
+  scale_fill_manual(values = c(
+    "Alive" = "#228B22", 
+    "Dead" = "#FFD700")) +
+  theme() +
+  labs(
+    title = "(a)",
+    x = "",
+    y = "Log10(CPK levels) (g/L)"
+  ) +
+    theme(axis.line = element_line(size = 0.3), axis.title.y = element_text(size = 8))
+
+#serum creatinine boxplot
+
+p2 <- ggplot(data = Heart_Failure, aes(
+  x = DEATH_EVENT, 
+  y = log10(serum_creatinine), 
+  fill = DEATH_EVENT)) +
+  geom_boxplot(width = 0.3, show.legend = FALSE) +
+  scale_fill_manual(values = c("Alive" = "#228B22", "Dead" =   "#FFD700")) +
+  labs(
+    title = "(b)",
+    x = "",
+    y = "Log10(serum creatinine levels) (mg/dL)"
+  ) +
+  theme(axis.line = element_line(size = 0.3), 
+        axis.title.y = element_text(size = 8))
+
+#platelet boxplot
+
+p3 <- ggplot(data = Heart_Failure, aes(
+  x = DEATH_EVENT, 
+  y = log10(platelets), 
+  fill =  DEATH_EVENT)) +
+  geom_boxplot(width = 0.3, show.legend = FALSE) +
+  scale_fill_manual(values = c(
+    "Alive" = "#228B22", 
+    "Dead" = "#FFD700")) +
+  labs(
+    title = "(c)",
+    x = "",
+    y = "Log10(platelet levels) (kiloplatelets/mL)"
+  ) +
+  theme(axis.line = element_line(size = 0.3), 
+        axis.title.y = element_text(size = 8))
+
+#serum sodium boxplot
+
+p4 <- ggplot(data = Heart_Failure, aes(
+  x = DEATH_EVENT, 
+  y = log10(serum_sodium), 
+  fill = DEATH_EVENT)) +
+  geom_boxplot(width = 0.3, show.legend = FALSE) +
+  scale_fill_manual(values = c(
+    "Alive" = "#228B22",
+    "Dead" = "#FFD700")) +
+  labs(
+    title = "(d)",
+    x = "",
+    y = "Log10(serum sodium levels) (mEq/L)"
+  ) +
+  theme(axis.line = element_line(size = 0.3), 
+        axis.title.y = element_text(size = 8))
+
+#arranging graphs into grid of four for figure 3
+
+grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
+
+#normality tests for serum creatine, serum sodium, platelet count and creatine phosphokinase levels
+
+ad.test(alive_patients$serum_creatinine)
+ad.test(dead_patients$serum_creatinine)
+
+ad.test(alive_patients$serum_sodium)
+ad.test(dead_patients$serum_sodium)
+
+ad.test(alive_patients$platelets)
+ad.test(dead_patients$platelets)
+
+ad.test(alive_patients$creatinine_phosphokinase)
+ad.test(dead_patients$creatinine_phosphokinase)
+
+#Wilcoxon rank sum tests
+
+
+
+wilcox.test(platelets ~ DEATH_EVENT, data = Heart_Failure)
+
+wilcox.test(creatinine_phosphokinase ~ DEATH_EVENT, data = Heart_Failure)
+
+wilcox.test(serum_creatinine ~ DEATH_EVENT, data = Heart_Failure)
+
+wilcox.test(serum_sodium ~ DEATH_EVENT, data = Heart_Failure)
+
+
+
+```
+**The effects of smoking on a patients ejection fraction**
+
+The effect of smoking on the patients ejection fraction was investigated as a persons ejection fraction can be used to predict a patients risk of death if it falls outside a healthy range.
+
+Figure 4 shows that a similar distribution of ejection fraction was observed between smokers and non-smokers with most values being distributed between approximately within the 25% and 50% range. 
+
+Mann Whitney U analysis was used as the ejection fraction data does not follow a normal distribution (Anderson-Darling test: *p* > 0.001 for ejection fraction in both smoker and non-smoker group). 
+
+This found no significant difference was found between medians (Mann-Whitney U test: U = 10602, *p* = 0.2158) suggesting smoking was not significantly associated with ejection fraction in this dataset. 
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, fig.cap = "Figure 4: The difference in ejection fraction among heart failure patients who smoke (*n = 96*) and those who do not smoke (*n= 203*). There was no significant difference between the median ejection fraction of smokers and non-smokers (Mann-Whitney U test: U = 10602, *p* = 0.2158)."}
+
+#more labeling for graph and subsequent data filtering
+
+Heart_Failure$smoking <- factor(Heart_Failure$smoking, levels = c(0, 1),
+                                labels = c("Non-smoker", "Smoker"))
+
+#smoking violin plot
+
+ggplot(data = Heart_Failure, aes(
+  x = smoking, 
+  y = ejection_fraction, 
+  fill = smoking , 
+  colour = smoking)) +
+  geom_violin(trim = FALSE, show.legend = FALSE, alpha = 0.2) +
+  labs( x = "", 
+        y = "Ejection Fraction (%)") + 
+  scale_colour_manual(values = c(
+    "Non-smoker" = "black", 
+    "Smoker" = "black")) +
+  scale_fill_manual(values = c(
+    "Non-smoker" = "#228B22", 
+    "Smoker" = "#FFD700")) +
+  geom_boxplot(width = 0.1, 
+               alpha = 0.5, 
+               show.legend = FALSE) +
+  theme(axis.line = element_line(size = 0.3))
+
+#filtering data to obtain the median 
+
+nonsmokers <- Heart_Failure %>%
+  filter( smoking == "Non-smoker")
+
+smokers <- Heart_Failure %>%
+  filter( smoking == "Smoker")
+
+#comparison of the medians of the two groups 
+
+median(nonsmokers$ejection_fraction)
+median(smokers$ejection_fraction)
+
+#test for normality 
+
+ad.test(nonsmokers$ejection_fraction)
+ad.test(smokers$ejection_fraction)
+
+#Wilcoxon rank sum test 
+
+wilcox.test(ejection_fraction ~ smoking, data = Heart_Failure)
+
+
+```
+
+It can be proposed that patients could have several conditions contributing to poor heart health such as diabetes and anaemia, but the patients age will be one of the main factors contributing to mortality. Additionally, a person having serum sodium levels lower and serum creatinine levels higher than the healthy range may increase incidents of death in heart failure patients. Furthermore, limited evidence has been found to suggest smoking has any effect on the volume of blood leaving the heart after every contraction. 
+
