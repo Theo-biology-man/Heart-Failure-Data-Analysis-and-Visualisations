@@ -11,10 +11,11 @@ scientific journal article
 
 The analysis explores:
 
-* the relationship between compounding heart disease risk factors contribute and mortality
-* the effect of age on mortality
+* the relationship between compounding heart disease risk factors contribute and mortality.
+* the effect of age on mortality.
 * the effect of blood-related factors on mortality including serum creatinine, 
-serum sodium, CPK and platelets
+serum sodium, CPK and platelets.
+* the effect of smoking on ejection fraction.
 
 Statistical analysis performed using Anderson-Darling normality tests and Wilcoxon 
 rank-sum tests (Mann Whitney U)
