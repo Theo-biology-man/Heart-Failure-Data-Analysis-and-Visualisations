@@ -49,5 +49,5 @@ compounding risk factors and mortality as well as smoking and ejection fraction.
 
 **Full analysis**
 
-The complete analysis, including R code, statistical tests, figures and interpretation, is available in the `.Rmd` file.
-[https://github.com/Theo-biology-man/Heart-Failure-Data-Analysis-and-Visualisations/blob/main/heart-failure-data-analysis-and-visualisation.md] # Full Analysis
+The complete analysis, including R code, statistical tests, figures and interpretation, is available in the `.Rmd` file.\
+[https://github.com/Theo-biology-man/Heart-Failure-Data-Analysis-and-Visualisations/blob/main/heart-failure-data-analysis-and-visualisation.md] 
