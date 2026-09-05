@@ -91,7 +91,7 @@ ggplot(merged_counts, aes(x = factor(num_factors),
 
 <figure>
 <img
-src="heart-failure-data-analysis-and-visualisation_files/Figures/Figure 1.png"
+src="Figures/Figure 1.png"
 alt="Figure 1: The number of categorical risk factors in each patient was totalled and each patient was separated into groups based on their risk factor numbers. This included smoking, anaemia, diabetes and hypertension. The percentage of this group that was deceased during their follow up period was calculated. Those with 3 risk factors (n = 41) showed the highest percentage however those with 1 (n = 118) and 2 (n = 103) risk factors showed a lower percentage than those with 0 (n = 35) risk factors. No patients with more 4 risk factors were deceased in this dataset" />
 <figcaption aria-hidden="true">Figure 1: The number of categorical risk
 factors in each patient was totalled and each patient was separated into
@@ -150,7 +150,7 @@ ggplot(data = Heart_Failure, aes(x = DEATH_EVENT,
 
 <figure>
 <img
-src="heart-failure-data-analysis-and-visualisation_files/Figures/Figure 2.png"
+src="Figures/Figure 2.png"
 alt="Figure 2: The distibution of age among patients who were either alive (n = 203) or deceased (n = 96) filter their follow up period. The age of patients was significantly higher (Mann Whitney U test: U = 7127, p &lt; 0.001) in the group of patients who were deceased after their follow up period." />
 <figcaption aria-hidden="true">Figure 2: The distibution of age among
 patients who were either alive (<em>n = 203</em>) or deceased (<em>n =
@@ -320,7 +320,7 @@ grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 
 <figure>
 <img
-src="heart-failure-data-analysis-and-visualisation_files/Figures/Figure 3.png"
+src="Figures/Figure 3.png"
 alt="Figure 3: (a): The distribution of the Log10 of CPK levels in alive and deceased heart failure patients. There was no significant difference between the medians of both groups (Mann Whitney U test: U = 9380, p = 0.684). (b): The distribution of the Log10 of serum creatinine levels in alive and deceased heart failure patients.The median serum creatinine levels in deceased patients was signifcantly higher than the median in alive patients (Mann-Whitney U test: U = 5280.5 p &gt; 0.001). (c): The distribution of the Log10 of platelet levels in alive and deceased heart failure patients. There was no significant difference between the medians of both groups (Mann Whitney U test: U = 10156, p = 0.4256. (d): The distribution of the Log10 of serum sodium levels in alive and deceased heart failure patients. The median serum sodium levels in deceased patients was signifcantly lower than the median in alive patients (Mann Whitney U test: U = p &gt; 0.001)" />
 <figcaption aria-hidden="true">Figure 3: (a): The distribution of the
 Log10 of CPK levels in alive and deceased heart failure patients. There
@@ -517,7 +517,7 @@ ggplot(data = Heart_Failure, aes(
 
 <figure>
 <img
-src="heart-failure-data-analysis-and-visualisation_files/Figures/Figure 1.png"
+src="Figures/Figure 1.png"
 alt="Figure 4: The difference in ejection fraction among heart failure patients who smoke (n = 96) and those who do not smoke (n= 203). There was no significant difference between the median ejection fraction of smokers and non-smokers (Mann-Whitney U test: U = 10602, p = 0.2158)." />
 <figcaption aria-hidden="true">Figure 4: The difference in ejection
 fraction among heart failure patients who smoke (<em>n = 96</em>) and
