@@ -28,10 +28,10 @@ compounding risk factors and mortality as well as smoking and ejection fraction.
 
 **Packages Used**
 
-* ggplot2\
-* dplyr\
-* nortest\
-* gridExtra\
+* ggplot2
+* dplyr
+* nortest
+* gridExtra
 * readxl
 
 
