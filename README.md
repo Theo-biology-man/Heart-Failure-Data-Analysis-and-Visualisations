@@ -7,7 +7,7 @@ Theo Richardson
 
 This project presents and analyses data from 299 heart failure patients
 to understand factors contributing to mortality in the style of a
-scientific journal article
+scientific journal article.
 
 The analysis explores:
 
@@ -18,13 +18,13 @@ serum sodium, CPK and platelets.
 * the effect of smoking on ejection fraction.
 
 Statistical analysis performed using Anderson-Darling normality tests and Wilcoxon 
-rank-sum tests (Mann Whitney U)
+rank-sum tests (Mann Whitney U).
 
 **Key Findings**
 
 
 Age, higher serum creatinine and lower serum sodium were significantly associated
-with mortality in the data set, No significant relationship was discovered between 
+with mortality in the data set. No significant relationship was discovered between 
 compounding risk factors and mortality as well as smoking and ejection fraction.
 
 **Packages Used**
